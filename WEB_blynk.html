@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Home Monitoring System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #00a8ff;
+      --secondary-color: #0097e6;
+      --dark-color: #1e272e;
+      --darker-color: #1a2026;
+      --light-color: #f5f6fa;
+      --success-color: #4cd137;
+      --warning-color: #e1b12c;
+      --danger-color: #e84118;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--dark-color);
+      color: var(--light-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .subtitle {
+      color: rgba(255,255,255,0.7);
+      font-weight: 300;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+    
+    .card {
+      background: var(--darker-color);
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card-title i {
+      font-size: 1.3rem;
+    }
+    
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .sensor-card {
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .sensor-label {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .sensor-value {
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .sensor-unit {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.5);
+      margin-left: 5px;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .btn-export {
+      background-color: #8c7ae6;
+      color: white;
+    }
+    
+    .btn-export:hover {
+      background-color: #7161c9;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    th {
+      background-color: rgba(0,168,255,0.1);
+      color: var(--primary-color);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    
+    tr:hover {
+      background-color: rgba(255,255,255,0.03);
+    }
+    
+    .date-filter {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .date-filter label {
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .date-filter input {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    @media (max-width: 768px) {
+      .sensor-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+      }
+      
+      .date-filter {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Smart Home Monitoring</h1>
+      <p class="subtitle">Kelompok 5: Mardinata, Febrika, Faqih</p>
+    </header>
+    
+    <div class="dashboard">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i>📊</i> Monitoring Full
+          </h2>
+          <div class="last-updated" id="last-updated"></div>
+        </div>
+        
+        <div class="sensor-grid">
+          <div class="sensor-card">
+            <div class="sensor-label">
+              <i>🌡️</i> Temperature
+            </div>
+            <div class="sensor-value">
+              <span id="temp">--</span>
+              <span class="sensor-unit">°C</span>
+            </div>
+          </div>
+          
+          <div class="sensor-card">
+            <div class="sensor-label">
+              <i>💧</i> Humidity
+            </div>
+            <div class="sensor-value">
+              <span id="hum">--</span>
+              <span class="sensor-unit">%</span>
+            </div>
+          </div>
+          
+          <div class="sensor-card">
+            <div class="sensor-label">
+              <i>⚠️</i> Alcohol Gas (MQ3)
+            </div>
+            <div class="sensor-value">
+              <span id="mq3">--</span>
+              <span class="sensor-unit">ppm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <i>📜</i> Historical Data
+          </h2>
+        </div>
+        
+        <div class="date-filter">
+          <label for="date">Select Date:</label>
+          <input type="date" id="date" />
+          <button id="exportJsonBtn" class="btn btn-export">
+            <i>⬇️</i> Download JSON
+          </button>
+        </div>
+        
+        <div class="table-responsive">
+          <table id="historyTable">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Temperature (°C)</th>
+                <th>Humidity (%)</th>
+                <th>MQ3 (ppm)</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr>
+                <td colspan="4" class="loading">Loading data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2lWejZuk1XDgrXORY5zPHcdUUHMxz6cs",
+      authDomain: "iot-b3b56.firebaseapp.com",
+      databaseURL: "https://iot-b3b56-default-rtdb.firebaseio.com",
+      projectId: "iot-b3b56",
+      storageBucket: "iot-b3b56.firebasestorage.app",
+      messagingSenderId: "336521015103",
+      appId: "1:336521015103:web:f731e9d37df9ec60eb6d8a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Format timestamp
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString();
+    }
+
+    // Update last updated time
+    function updateLastUpdated() {
+      const now = new Date();
+      document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+    }
+
+    // Real-time listener for sensor data
+    onValue(ref(db, '/Data'), snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        document.getElementById('temp').textContent = data.Suhu ?? '--';
+        document.getElementById('hum').textContent = data.Kelembapan ?? '--';
+        document.getElementById('mq3').textContent = data.MQ3 ?? '--';
+        updateLastUpdated();
+      }
+    });
+
+    // Load history data for selected date
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    loadHistory(today);
+
+    dateInput.addEventListener('change', (e) => {
+      loadHistory(e.target.value);
+    });
+
+    function loadHistory(dateKey) {
+      const tbody = document.getElementById('history-body');
+      tbody.innerHTML = '<tr><td colspan="4" class="loading">Loading data...</td></tr>';
+      
+      get(ref(db, `/Histori/${dateKey}`)).then(snapshot => {
+        tbody.innerHTML = '';
+        
+        if (snapshot.exists()) {
+          const history = snapshot.val();
+          const sortedKeys = Object.keys(history).sort();
+          
+          if (sortedKeys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="no-data">No data available for this date</td></tr>';
+            return;
+          }
+          
+          sortedKeys.forEach(time => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${time}</td>
+              <td>${history[time].Suhu}</td>
+              <td>${history[time].Kelembapan}</td>
+              <td>${history[time].MQ3}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" class="no-data">No data available for this date</td></tr>';
+        }
+      }).catch(error => {
+        tbody.innerHTML = '<tr><td colspan="4" class="no-data">Error loading data</td></tr>';
+        console.error("Error loading history:", error);
+      });
+    }
+
+    // JSON export function
+    document.getElementById('exportJsonBtn').addEventListener('click', exportToJson);
+
+    function exportToJson() {
+      const date = document.getElementById('date').value;
+      get(ref(db, `/Histori/${date}`)).then(snapshot => {
+        if (snapshot.exists()) {
+          const history = snapshot.val();
+          const sortedKeys = Object.keys(history).sort();
+          
+          // Format data for JSON export
+          const exportData = {
+            metadata: {
+              system: "Smart Home Monitoring",
+              date: date,
+              generated_at: new Date().toISOString(),
+              record_count: sortedKeys.length
+            },
+            records: sortedKeys.map(time => ({
+              timestamp: time,
+              temperature: history[time].Suhu,
+              humidity: history[time].Kelembapan,
+              alcohol_gas: history[time].MQ3
+            }))
+          };
+          
+          // Create and trigger download
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], { 
+            type: 'application/json' 
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `smart_home_data_${date}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Clean up
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+        } else {
+          alert('No data available for the selected date.');
+        }
+      }).catch(error => {
+        alert('Error exporting data: ' + error.message);
+        console.error("Export error:", error);
+      });
+    }
+  </script>
+</body>
+</html>
